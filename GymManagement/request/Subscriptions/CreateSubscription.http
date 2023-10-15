@@ -1,11 +1,11 @@
-@host=..
+@host=http://localhost:5247
 
-@adminId=..
+@adminId=d45a57f6-2c1d-42da-85b0-0fc1968cc950
 
-POST {{host}}/Subscriptions HTTP/1.1
-Content-Type: : application/json
+Post {{host}}/Subscriptions/
+Content-Type: application/json
 
 {
-    "SubscriptionType": "Free", // "Starter", "Pro"
-    "AdminId": "{{{{adminId}}}}"
+    "SubscriptionType": "Free",
+    "AdminId": "{{adminId}}"
 }
