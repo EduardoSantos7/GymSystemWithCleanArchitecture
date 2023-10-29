@@ -41,7 +41,7 @@ public class SubscriptionsController : ControllerBase
             error => Problem());
     }
 
-    [HttpGet("subscriptionId:guid")]
+    [HttpGet("{subscriptionId:guid}")]
     public async Task<IActionResult> GetSubscription(Guid subscriptionId)
     {
         Console.WriteLine($"The subscription returned is: {subscriptionId}");
