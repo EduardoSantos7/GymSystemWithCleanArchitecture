@@ -17,7 +17,7 @@ public class SubscriptionsRepository : ISubscriptionsRepository
     {
         await _dbContext.Subscriptions.AddAsync(subscription);
 
-        _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<Subscription?> GetSubscriptionById(Guid subscriptionId)
