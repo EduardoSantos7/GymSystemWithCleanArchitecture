@@ -18,7 +18,7 @@ public class GetSubscriptionQueryHandler : IRequestHandler<GetSubscriptionQuery,
 
     public async Task<ErrorOr<Subscription>> Handle(GetSubscriptionQuery query, CancellationToken cancellationToken)
     {
-        var subscription = await _subscriptionRepository.GetSubscriptionById(query.SubscriptionId);
+        var subscription = await _subscriptionRepository.GetByIdAsync(query.SubscriptionId);
 
         return subscription is null 
             ? Error.NotFound(description: "Subscription not found")

@@ -16,7 +16,7 @@ public class DeleteSubscriptionCommandHandler : IRequestHandler<DeleteSubscripti
     }
     public async Task<ErrorOr<Deleted>> Handle(DeleteSubscriptionCommand command, CancellationToken cancellationToken)
     {
-        var subscription = await _subscriptionRepository.GetSubscriptionById(command.SubscriptionId).ConfigureAwait(false);
+        var subscription = await _subscriptionRepository.GetByIdAsync(command.SubscriptionId).ConfigureAwait(false);
 
         if (subscription is null) 
         {
