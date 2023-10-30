@@ -1,4 +1,5 @@
 using GymManagement.Application.Subscriptions.Commands.CreateSubscription;
+using GymManagement.Application.Subscriptions.Commands.DeleteSubscription;
 using GymManagement.Application.Subscriptions.Queries.GetSubscription;
 using GymManagement.Contracts.Subscriptions;
 using MediatR;
@@ -7,9 +8,9 @@ using DomainSubscriptionType = GymManagement.Domain.Subscriptions.SubscriptionTy
 
 namespace GymManagement.Api.Controllers;
 
-[ApiController]
+
 [Route("[controller]")]
-public class SubscriptionsController : ControllerBase
+public class SubscriptionsController : ApiController
 {
     private readonly ISender _mediator;
 
@@ -44,15 +45,37 @@ public class SubscriptionsController : ControllerBase
     [HttpGet("{subscriptionId:guid}")]
     public async Task<IActionResult> GetSubscription(Guid subscriptionId)
     {
-        Console.WriteLine($"The subscription returned is: {subscriptionId}");
         var query = new GetSubscriptionQuery(subscriptionId);
 
-        var getSubscriptionResult =  await _mediator.Send(query);
+        var getSubscriptionsResult =  await _mediator.Send(query);
 
-        return getSubscriptionResult.MatchFirst(
+        return getSubscriptionsResult.Match(
             subscription => Ok(new SubscriptionResponse(
-                subscription.Id, 
-                Enum.Parse<SubscriptionType>(subscription.SubscriptionType.Name))),
-            error => Problem());
+                subscription.Id,
+                ToDto(subscription.SubscriptionType))),
+            Problem);
+    }
+
+    [HttpDelete("{subscriptionId:Guid}")]
+    public async Task<IActionResult> DeleteSubscription(Guid subscriptionId)
+    {
+        var command = new DeleteSubscriptionCommand(subscriptionId);
+
+        var deleteSubscriptionResult = await _mediator.Send(command);
+
+        return deleteSubscriptionResult.Match(
+            _ => NoContent(),
+            Problem);
+    }
+
+    private static SubscriptionType ToDto(DomainSubscriptionType subscriptionType)
+    {
+        return subscriptionType.Name switch
+        {
+            nameof(DomainSubscriptionType.Free) => SubscriptionType.Free,
+            nameof(DomainSubscriptionType.Starter) => SubscriptionType.Starter,
+            nameof(DomainSubscriptionType.Pro) => SubscriptionType.Pro,
+            _ => throw new InvalidOperationException(),
+        };
     }
 }
