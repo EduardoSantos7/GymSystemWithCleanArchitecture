@@ -37,9 +37,14 @@ public class SubscriptionsController : ApiController
 
         var createSubscriptionResult =  await _mediator.Send(command);
 
-        return createSubscriptionResult.MatchFirst(
-            subscription => Ok(new SubscriptionResponse(subscription.Id, request.SubscriptionType)),
-            error => Problem());
+        return createSubscriptionResult.Match(
+            subscription => CreatedAtAction(
+                nameof(GetSubscription),
+                new { subscriptionId = subscription.Id },
+                new SubscriptionResponse(
+                    subscription.Id,
+                    ToDto(subscription.SubscriptionType))),
+            Problem);
     }
 
     [HttpGet("{subscriptionId:guid}")]
