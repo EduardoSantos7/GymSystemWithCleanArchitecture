@@ -1,22 +1,23 @@
+using GymManagement.Domain.Admin.Events;
+using GymManagement.Domain.common;
 using GymManagement.Domain.Subscriptions;
 using Throw;
 
 namespace GymManagement.Domain.Admins;
 
-public class Admin
+public class Admin : Entity
 {
     public Guid UserId { get; }
     public Guid? SubscriptionId { get; private set; } = null;
-    public Guid Id { get; private set; }
 
     public Admin(
         Guid userId,
         Guid? subscriptionId = null,
         Guid? id = null)
+        : base(id ?? Guid.NewGuid())
     {
         UserId = userId;
         SubscriptionId = subscriptionId;
-        Id = id ?? Guid.NewGuid();
     }
 
     private Admin() { }
@@ -33,5 +34,7 @@ public class Admin
         SubscriptionId.ThrowIfNull().IfNotEquals(subscriptionId);
 
         SubscriptionId = null;
+
+        _domainEvents.Add(new SubscriptionDeletedEvent(subscriptionId));
     }
 }
