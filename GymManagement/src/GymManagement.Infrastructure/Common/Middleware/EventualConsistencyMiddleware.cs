@@ -45,9 +45,6 @@ namespace GymManagement.Infrastructure.Common.Middleware;
                 }
             });
 
-            // // store the queue in the http context
-            // context.Items["DomainEventQueue"] = domainEventQueue;
-
             await _next(context);
         }
     }
