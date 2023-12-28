@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GymManagement.Infrastructure.Gyms.Persistence;
 
-public class GymsRepository : IGymsRepository
+public class GymsRepository(GymManagementDbContext dbContext) : IGymsRepository
 {
-    private readonly GymManagementDbContext _dbContext;
-
-    public GymsRepository(GymManagementDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    private readonly GymManagementDbContext _dbContext = dbContext;
 
     public async Task AddGymAsync(Gym gym)
     {

@@ -5,15 +5,12 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GymManagement.Infrastructure.Common.Persistence;
 
-public class ValueJsonConverter<T> : ValueConverter<T, string>
+public class ValueJsonConverter<T>(ConverterMappingHints? mappingHints = null)
+    : ValueConverter<T, string>(
+        v => JsonSerializer.Serialize(v, JsonSerializerOptions.Default),
+        v => JsonSerializer.Deserialize<T>(v, JsonSerializerOptions.Default)!,
+        mappingHints)
 {
-    public ValueJsonConverter(ConverterMappingHints? mappingHints = null)
-        : base(
-            v => JsonSerializer.Serialize(v, JsonSerializerOptions.Default),
-            v => JsonSerializer.Deserialize<T>(v, JsonSerializerOptions.Default)!,
-            mappingHints)
-    {
-    }
 }
 
 public class ValueJsonComparer<T> : ValueComparer<T>

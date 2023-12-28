@@ -8,17 +8,9 @@ using DomainSubscriptionType = GymManagement.Domain.Subscriptions.SubscriptionTy
 
 namespace GymManagement.Api.Controllers;
 
-
 [Route("[controller]")]
-public class SubscriptionsController : ApiController
+public class SubscriptionsController(ISender _mediator) : ApiController
 {
-    private readonly ISender _mediator;
-
-    public SubscriptionsController(ISender mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpPost]
     public async Task<IActionResult> CreateSubscription(CreateSubscriptionRequest request)
     {
@@ -35,7 +27,7 @@ public class SubscriptionsController : ApiController
             subscriptionType,
             request.AdminId);
 
-        var createSubscriptionResult =  await _mediator.Send(command);
+        var createSubscriptionResult = await _mediator.Send(command);
 
         return createSubscriptionResult.Match(
             subscription => CreatedAtAction(
@@ -52,7 +44,7 @@ public class SubscriptionsController : ApiController
     {
         var query = new GetSubscriptionQuery(subscriptionId);
 
-        var getSubscriptionsResult =  await _mediator.Send(query);
+        var getSubscriptionsResult = await _mediator.Send(query);
 
         return getSubscriptionsResult.Match(
             subscription => Ok(new SubscriptionResponse(
@@ -61,14 +53,14 @@ public class SubscriptionsController : ApiController
             Problem);
     }
 
-    [HttpDelete("{subscriptionId:Guid}")]
+    [HttpDelete("{subscriptionId:guid}")]
     public async Task<IActionResult> DeleteSubscription(Guid subscriptionId)
     {
         var command = new DeleteSubscriptionCommand(subscriptionId);
 
-        var deleteSubscriptionResult = await _mediator.Send(command);
+        var createSubscriptionResult = await _mediator.Send(command);
 
-        return deleteSubscriptionResult.Match(
+        return createSubscriptionResult.Match(
             _ => NoContent(),
             Problem);
     }

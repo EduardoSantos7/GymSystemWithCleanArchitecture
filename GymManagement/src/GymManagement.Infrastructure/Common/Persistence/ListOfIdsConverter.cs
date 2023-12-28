@@ -5,15 +5,12 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GymManagement.Infrastructure.Common.Persistence;
 
-public class ListOfIdsConverter : ValueConverter<List<Guid>, string>
+public class ListOfIdsConverter(ConverterMappingHints? mappingHints = null)
+    : ValueConverter<List<Guid>, string>(
+        v => string.Join(',', v),
+        v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Guid.Parse).ToList(),
+        mappingHints)
 {
-    public ListOfIdsConverter(ConverterMappingHints? mappingHints = null)
-        : base(
-            v => string.Join(',', v),
-            v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Guid.Parse).ToList(),
-            mappingHints)
-    {
-    }
 }
 
 public class ListOfIdsComparer : ValueComparer<List<Guid>>

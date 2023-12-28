@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GymManagement.Infrastructure.Subscriptions.Persistence;
 
-public class SubscriptionsRepository : ISubscriptionsRepository
+public class SubscriptionsRepository(GymManagementDbContext dbContext) : ISubscriptionsRepository
 {
-    private readonly GymManagementDbContext _dbContext;
-
-    public SubscriptionsRepository(GymManagementDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    private readonly GymManagementDbContext _dbContext = dbContext;
 
     public async Task AddSubscriptionAsync(Subscription subscription)
     {

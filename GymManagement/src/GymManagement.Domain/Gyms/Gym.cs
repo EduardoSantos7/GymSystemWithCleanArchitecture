@@ -1,4 +1,3 @@
-
 using ErrorOr;
 using GymManagement.Domain.Rooms;
 using Throw;
@@ -10,8 +9,8 @@ public class Gym
     private readonly int _maxRooms;
 
     public Guid Id { get; }
-    private readonly List<Guid> _roomIds = new();
-    private readonly List<Guid> _trainerIds = new();
+    private readonly List<Guid> _roomIds = [];
+    private readonly List<Guid> _trainerIds = [];
 
     public string Name { get; init; } = null!;
     public Guid SubscriptionId { get; init; }
@@ -56,11 +55,6 @@ public class Gym
 
         _trainerIds.Add(trainerId);
         return Result.Success;
-    }
-
-    public bool HasTrainer(Guid trainerId)
-    {
-        return _trainerIds.Contains(trainerId);
     }
 
     public void RemoveRoom(Guid roomId)

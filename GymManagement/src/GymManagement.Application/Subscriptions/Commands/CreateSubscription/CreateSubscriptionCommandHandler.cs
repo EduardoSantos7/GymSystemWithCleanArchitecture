@@ -5,18 +5,15 @@ using MediatR;
 
 namespace GymManagement.Application.Subscriptions.Commands.CreateSubscription;
 
-public class CreateSubscriptionCommandHandler : IRequestHandler<CreateSubscriptionCommand, ErrorOr<Subscription>>
+public class CreateSubscriptionCommandHandler(
+    ISubscriptionsRepository subscriptionsRepository,
+    IUnitOfWork unitOfWork,
+    IAdminsRepository adminsRepository)
+        : IRequestHandler<CreateSubscriptionCommand, ErrorOr<Subscription>>
 {
-    private readonly ISubscriptionsRepository _subscriptionsRepository;
-    private readonly IAdminsRepository _adminsRepository;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public CreateSubscriptionCommandHandler(ISubscriptionsRepository subscriptionsRepository, IUnitOfWork unitOfWork, IAdminsRepository adminsRepository)
-    {
-        _subscriptionsRepository = subscriptionsRepository;
-        _unitOfWork = unitOfWork;
-        _adminsRepository = adminsRepository;
-    }
+    private readonly ISubscriptionsRepository _subscriptionsRepository = subscriptionsRepository;
+    private readonly IAdminsRepository _adminsRepository = adminsRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<ErrorOr<Subscription>> Handle(CreateSubscriptionCommand request, CancellationToken cancellationToken)
     {

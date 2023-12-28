@@ -5,16 +5,11 @@ using MediatR;
 
 namespace GymManagement.Application.Gyms.Queries.GetGym;
 
-public class GetGymQueryHandler : IRequestHandler<GetGymQuery, ErrorOr<Gym>>
+public class GetGymQueryHandler(IGymsRepository gymsRepository, ISubscriptionsRepository subscriptionsRepository)
+    : IRequestHandler<GetGymQuery, ErrorOr<Gym>>
 {
-    private readonly IGymsRepository _gymsRepository;
-    private readonly ISubscriptionsRepository _subscriptionsRepository;
-
-    public GetGymQueryHandler(IGymsRepository gymsRepository, ISubscriptionsRepository subscriptionsRepository)
-    {
-        _gymsRepository = gymsRepository;
-        _subscriptionsRepository = subscriptionsRepository;
-    }
+    private readonly IGymsRepository _gymsRepository = gymsRepository;
+    private readonly ISubscriptionsRepository _subscriptionsRepository = subscriptionsRepository;
 
     public async Task<ErrorOr<Gym>> Handle(GetGymQuery request, CancellationToken cancellationToken)
     {

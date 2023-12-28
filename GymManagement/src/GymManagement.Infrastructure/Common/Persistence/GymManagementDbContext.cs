@@ -1,47 +1,72 @@
 using System.Reflection;
 using GymManagement.Application.Common.Interfaces;
 using GymManagement.Domain.Admins;
-using GymManagement.Domain.common;
+using GymManagement.Domain.Common;
 using GymManagement.Domain.Gyms;
 using GymManagement.Domain.Subscriptions;
+using GymManagement.Domain.Users;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymManagement.Infrastructure.Common.Persistence;
 
-public class GymManagementDbContext(DbContextOptions options, IHttpContextAccessor httpContextAccessor) : DbContext(options), IUnitOfWork
+public class GymManagementDbContext(
+    DbContextOptions options,
+    IHttpContextAccessor httpContextAccessor,
+    IPublisher _publisher) : DbContext(options), IUnitOfWork
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+
     public DbSet<Admin> Admins { get; set; } = null!;
     public DbSet<Subscription> Subscriptions { get; set; } = null!;
     public DbSet<Gym> Gyms { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
 
     public async Task CommitChangesAsync()
     {
         // get hold of all the domain events
-        var domainEventEntities = ChangeTracker
-            .Entries<Entity>()
+        var domainEvents = ChangeTracker.Entries<Entity>()
             .Select(entry => entry.Entity.PopDomainEvents())
             .SelectMany(x => x)
             .ToList();
 
-        AddDomainEventsToOfflineProcessingQueue(domainEventEntities);
+        // store them in the http context for later if user is waiting online
+        if (IsUserWaitingOnline())
+        {
+            AddDomainEventsToOfflineProcessingQueue(domainEvents);
+        }
+        else
+        {
+            await PublishDomainEvents(_publisher, domainEvents);
+        }
 
         await SaveChangesAsync();
     }
 
-    private void AddDomainEventsToOfflineProcessingQueue(List<IDomainEvent> domainEventEntities)
+    private static async Task PublishDomainEvents(IPublisher _publisher, List<IDomainEvent> domainEvents)
     {
-        // fetch a queue from http context or create a new queue if it doesn't exist
-        var domainEventQueue = _httpContextAccessor.HttpContext!.Items
-            .TryGetValue("DomainEventQueue", out var value) && value is Queue<IDomainEvent> existingDomainEvents ? 
-            existingDomainEvents
-            : new Queue<IDomainEvent>();
+        foreach (var domainEvent in domainEvents)
+        {
+            await _publisher.Publish(domainEvent);
+        }
+    }
 
-        // add all the domain events to the end queue
-        domainEventEntities.ForEach(domainEventQueue.Enqueue);
+    private bool IsUserWaitingOnline() => _httpContextAccessor.HttpContext is not null;
+
+    private void AddDomainEventsToOfflineProcessingQueue(List<IDomainEvent> domainEvents)
+    {
+        // fetch queue from http context or create a new queue if it doesn't exist
+        var domainEventsQueue = _httpContextAccessor.HttpContext!.Items
+            .TryGetValue("DomainEventsQueue", out var value) && value is Queue<IDomainEvent> existingDomainEvents
+                ? existingDomainEvents
+                : new Queue<IDomainEvent>();
+
+        // add the domain events to the end of the queue
+        domainEvents.ForEach(domainEventsQueue.Enqueue);
+
         // store the queue in the http context
-        _httpContextAccessor.HttpContext!.Items["DomainEventQueue"] = domainEventQueue;
+        _httpContextAccessor.HttpContext!.Items["DomainEventsQueue"] = domainEventsQueue;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

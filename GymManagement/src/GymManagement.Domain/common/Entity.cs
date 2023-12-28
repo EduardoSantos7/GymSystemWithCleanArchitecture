@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace GymManagement.Domain.common;
+namespace GymManagement.Domain.Common;
 
 public abstract class Entity
 {
@@ -16,7 +11,9 @@ public abstract class Entity
     public List<IDomainEvent> PopDomainEvents()
     {
         var copy = _domainEvents.ToList();
+
         _domainEvents.Clear();
+
         return copy;
     }
 
