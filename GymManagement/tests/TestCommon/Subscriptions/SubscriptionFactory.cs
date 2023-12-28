@@ -1,4 +1,7 @@
-﻿namespace TestCommon.Subscriptions;
+using GymManagement.Domain.Subscriptions;
+using TestCommon.TestConstants;
+
+namespace TestCommon.Subscriptions;
 
 public static class SubscriptionFactory
 {
@@ -10,6 +13,6 @@ public static class SubscriptionFactory
         return new Subscription(
             subscriptionType: subscriptionType ?? Constants.Subscriptions.DefaultSubscriptionType,
             adminId ?? Constants.Admin.Id,
-            id ?? ConstantExpression.Subscription.Id);
+            id ?? Constants.Subscriptions.Id);
     }
 }
