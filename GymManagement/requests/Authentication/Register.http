@@ -1,5 +1,6 @@
 @host=http://localhost:5209
 
+
 POST {{host}}/authentication/register
 Content-Type: application/json
 
