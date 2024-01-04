@@ -1,6 +1,6 @@
 @host=http://localhost:5209
 @userId=b66b45f2-43f0-4a27-bf42-4b1c684bfd9a
-@token=
+@token="replace"
 
 ### Admin
 POST {{host}}/users/{{userId}}/profiles/admin
